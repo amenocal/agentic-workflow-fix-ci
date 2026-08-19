@@ -53,6 +53,12 @@ safe-outputs:
       - "*"
       - "!main"
       - "!master"
+    # Only source files may land in the PR; test edits are stripped from the
+    # patch so the agent cannot "fix" CI by rewriting or deleting tests.
+    allowed-files:
+      - "app/src/**"
+    excluded-files:
+      - "app/test/**"
 ---
 
 # Autofix CI
@@ -75,9 +81,13 @@ stacked fix pull request against the failing branch.
    checked it out from the `workflow_run` head branch or the `workflow_dispatch` branch input).
 3. Reproduce the failure by running `cd app && npm test`.
 4. Read the failing assertion carefully. Find the smallest source change needed in
-   `app/src/domain.mjs` to restore the intended behavior. Do not make unrelated changes,
-   touch generated files, or hide the failing test.
-5. Re-run `cd app && npm test` to confirm the fix passes.
+   `app/src/domain.mjs` to restore the intended behavior. Do not make unrelated changes
+   or touch generated files.
+5. **Only edit files under `app/src/`.** Never modify, delete, or weaken tests under
+   `app/test/` to make CI pass — that is not a valid fix. The pull request is restricted
+   to `app/src/**` and any `app/test/**` changes are automatically excluded from the patch,
+   so a test edit will silently disappear and cannot land.
+6. Re-run `cd app && npm test` to confirm the fix passes.
 
 ## Safe Outputs
 
