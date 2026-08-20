@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { filterByLabel, paginate, scoreIssue, sortByPriority } from '../src/domain.mjs';
+import { filterByLabel, paginate, scoreIssue, sortByPriority, topPriority } from '../src/domain.mjs';
 
 const fixtures = [
   {
@@ -69,6 +69,16 @@ describe('sortByPriority', () => {
     sortByPriority(fixtures);
 
     assert.deepEqual(fixtures.map((issue) => issue.id), originalOrder);
+  });
+});
+
+describe('topPriority', () => {
+  it('returns the highest scoring issues first', () => {
+    assert.deepEqual(
+      topPriority(fixtures, 2).map((issue) => issue.id),
+      ['critical-bug', 'security'],
+      'topPriority should list issues from highest score to lowest score'
+    );
   });
 });
 
